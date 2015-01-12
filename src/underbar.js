@@ -7,6 +7,7 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+    return val;
   };
 
   /**
@@ -37,6 +38,12 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if (n > array.length) {
+      return array;
+    }
+    else {
+    return n === undefined ? array[array.length - 1] : array.slice((array.length - n), array.length);
+  }
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -45,6 +52,15 @@
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+if (Array.isArray(collection)) {
+  for (var i = 0; i< collection.length; i++) {
+    iterator(collection[i], i, collection);
+  }
+} else {
+  for (var j in collection) {
+    iterator(collection[j], j, collection)
+  }
+}
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -66,16 +82,42 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var truth = [];
+    for (var i = 0; i< collection.length; i++) {
+      if (test(collection[i])) {
+        truth.push(collection[i]);
+      }
+    }
+    return truth;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+     return _.filter(collection, function(x) {
+      return !test(x);
+     })
   };
+
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+    var unique = [];
+    var noDuplicate = true;
+    unique.push(array[0]);
+    for (var i = 1; i<array.length; i++) {
+      for (var j = 0; j<i; j++) {
+        if (array[i] === array[j]) {
+          noDuplicate = false;
+        }
+      }
+        if (noDuplicate === true) {
+          unique.push(array[i]);
+        }
+        noDuplicate = true;
+    }
+    return unique;
   };
 
 
@@ -84,6 +126,11 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    var iterated = [];
+    for (var i = 0; i< collection.length; i++) {
+      iterated.push(iterator(collection[i]));
+    }
+    return iterated;
   };
 
   /*
@@ -125,6 +172,18 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    if (accumulator === undefined) {
+        accumulator = collection[0];
+        collection.shift();
+     } 
+
+var sum = 0;
+    for (var i = 0; i< collection.length; i++) {
+      sum = iterator(accumulator, collection[i]);
+      accumulator = sum;
+    }
+return sum;
+
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -143,7 +202,7 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
-  };
+ };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
@@ -171,6 +230,9 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    for (var i = 1; i<arguments.length; i++) {
+      
+    }
   };
 
   // Like extend, but doesn't ever overwrite a key that already
@@ -228,6 +290,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  return setTimeout(function() {
+    return func.apply(null, args);
+  }, wait);
   };
 
 
