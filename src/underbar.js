@@ -172,25 +172,24 @@ if (Array.isArray(collection)) {
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
-    if (accumulator === undefined) {
-        accumulator = collection[0];
-        collection.shift();
-     } 
+      _.each(collection, function(value) {
+      if (accumulator === undefined) {
+        accumulator = value;
+      } else {
+        accumulator = iterator(accumulator, value);
+      }
+    });
 
-var sum = 0;
-    for (var i = 0; i< collection.length; i++) {
-      sum = iterator(accumulator, collection[i]);
-      accumulator = sum;
-    }
-return sum;
-
+    return accumulator;
   };
+
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
-    // TIP: Many iteration problems can be most easily expressed in
+   // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
-    return _.reduce(collection, function(wasFound, item) {
+   
+   return _.reduce(collection, function(wasFound, item) {
       if (wasFound) {
         return true;
       }
@@ -199,16 +198,48 @@ return sum;
   };
 
 
+
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
-    // TIP: Try re-using reduce() here.
- };
+  // TIP: Try re-using reduce() here.
+   if (collection.length === 0) {
+    return true;
+   }
+
+   if (iterator === undefined) {
+    var iterator = function(item) {
+      if (typeof(item) === "string") {
+        item = true;
+      }
+      return item === true;
+    }
+   };
+return _.reduce(collection, function(isTrue, item) {
+  return true === (iterator(item) && isTrue);
+}, true);
+
+};
+
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+  if(iterator === undefined){
+      var iterator = function(item) { 
+        if(typeof(item) === "undefined"){
+          item = true;
+        }
+        return item === true;
+      }
+    }
+
+    var iteratorNew = function(item) { 
+      return !(iterator(item));
+    }
+    return !(_.every(collection, iteratorNew));
   };
+
 
 
   /**
@@ -230,14 +261,28 @@ return sum;
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
-    for (var i = 1; i<arguments.length; i++) {
-      
-    }
-  };
+  _.each(arguments, function(item) {
+   for (var key in item) {
+    obj[key] = item[key];
+   }
+   });
+return obj;
+ };
+ 
+
+  
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(item) {
+   for (var key in item) {
+    if (obj[key] === undefined) {
+    obj[key] = item[key];
+  }
+   }
+   });
+return obj;
   };
 
 
@@ -281,8 +326,16 @@ return sum;
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-  };
-
+var alreadyCalled = {};
+    return function() {
+        var args = [].slice.call(arguments);
+        if (alreadyCalled[args] = (args in alreadyCalled)) {
+          return alreadyCalled[args];
+        } else {
+        return func.apply(this, args);
+      };
+    };
+};
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   //
@@ -308,6 +361,25 @@ return sum;
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var arr = array.slice(0);
+    
+    function changeBetween(a, b) {
+      var temp1 = arr[a];
+      var temp2 = arr[b];
+      arr[a] = temp2;
+      arr[b] = temp1;
+    }
+
+    function newIndex() {
+      return Math.floor(Math.random() * (arr.length));
+    }
+
+    for (var i = 0; i<arr.length; i++) {
+      var x = newIndex();
+      var y = newIndex();
+      changeBetween(x, y);
+    }
+  return arr;
   };
 
 
